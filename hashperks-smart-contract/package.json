@@ -1,0 +1,11 @@
+{
+  "name": "hash-perks",
+  "version": "1.0.0",
+  "description": "Hash Perks is a loyalty point program built on top of Ethereum.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-700 antialiased font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold text-slate-900;
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn-primary-dark {
+    @apply bg-polka-dark hover:bg-slate-800 text-white font-medium py-2.5 px-6 rounded-md shadow-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-polka-pink focus:ring-offset-2 inline-flex items-center justify-center;
+  }
+  .btn-secondary-light {
+    @apply bg-white hover:bg-slate-100 text-polka-dark font-medium py-2.5 px-6 rounded-md shadow-sm border border-slate-200 hover:border-slate-300 transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-polka-pink focus:ring-offset-2 inline-flex items-center justify-center;
+  }
+  /* Buttons specifically for on-gradient hero sections */
+  .btn-on-gradient-dark {
+    @apply bg-slate-900/90 hover:bg-slate-900 text-white font-semibold py-3 px-7 rounded-md shadow-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-polka-pink focus:ring-offset-2 inline-flex items-center justify-center;
+  }
+  .btn-on-gradient-light {
+    @apply bg-white/90 hover:bg-white text-slate-800 font-semibold py-3 px-7 rounded-md shadow-lg transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-polka-pink focus:ring-offset-2 inline-flex items-center justify-center;
+  }
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-6 rounded-md shadow-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 inline-flex items-center justify-center;
+  }
+
+  /* Form Elements */
+  .input-field-modern {
+    @apply mt-1 block w-full px-4 py-2.5 bg-white border border-slate-200 rounded-md shadow-sm placeholder-slate-400
+           focus:outline-none focus:ring-2 focus:ring-polka-pink focus:border-polka-pink
+           sm:text-sm transition-all;
+  }
+
+  /* Cards */
+  .card-modern {
+    @apply bg-white rounded-xl shadow-sm overflow-hidden p-6 transition-all hover:shadow-md border border-slate-100; /* Subtle border and shadow */
+  }
+}

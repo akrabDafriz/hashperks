@@ -1,0 +1,16 @@
+[
+  {
+    "id": "236f053e-e2bd-4c94-8a87-e558b4d4d4d4",
+    "name": "Lantis",
+    "email": "lantis@spotify.com",
+    "password": "123",
+    "ownerWalletAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "loyaltyProgram": {
+      "businessId": "236f053e-e2bd-4c94-8a87-e558b4d4d4d4",
+      "address": "0xB7A5bd0345EF1Cc5E66bf61BdeC17D2461fBd968",
+      "name": "Album",
+      "symbol": "TLS",
+      "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }
+  }
+]
