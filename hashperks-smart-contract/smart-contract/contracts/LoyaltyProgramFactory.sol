@@ -7,7 +7,8 @@ import "./LoyaltyToken.sol"; // Import your LoyaltyToken contract
 /**
  * @title LoyaltyProgramFactory
  * @dev A factory contract to deploy and manage LoyaltyToken instances for businesses.
- * Only the owner of this factory can deploy new loyalty programs.
+ * The factory itself is Ownable (e.g., for administrative functions like pausing, upgrading),
+ * but deploying new programs can be open or restricted by other means if needed.
  */
 contract LoyaltyProgramFactory is Ownable {
     // Struct to store basic details of each deployed loyalty program
@@ -19,12 +20,9 @@ contract LoyaltyProgramFactory is Ownable {
         bool exists; // To check if the program exists
     }
 
-    // Mapping from a unique business ID (e.g., string) to LoyaltyProgram details
-    // For simplicity, we'll use a string businessId. In a real app, this might be a hash or a more complex ID.
     mapping(string => LoyaltyProgram) public deployedPrograms;
     string[] public businessIds; // To keep track of all registered business IDs
 
-    // Event emitted when a new loyalty program is deployed
     event LoyaltyProgramDeployed(
         string indexed businessId,
         address indexed tokenAddress,
@@ -39,7 +37,7 @@ contract LoyaltyProgramFactory is Ownable {
 
     /**
      * @dev Deploys a new LoyaltyToken contract for a business.
-     * Only callable by the owner of this factory contract.
+     * Now callable by any address. The _businessOwner parameter dictates ownership of the new token.
      * @param _businessId A unique identifier for the business.
      * @param _tokenName The name of the loyalty token (e.g., "Starbucks Stars").
      * @param _tokenSymbol The symbol of the loyalty token (e.g., "SBUX").
@@ -52,7 +50,7 @@ contract LoyaltyProgramFactory is Ownable {
         string memory _tokenSymbol,
         uint8 _tokenDecimals,
         address _businessOwner
-    ) public onlyOwner returns (address) {
+    ) public returns (address) { // <--- REMOVED 'onlyOwner' MODIFIER
         // Ensure the businessId is unique
         require(
             bytes(_businessId).length > 0,
@@ -71,7 +69,7 @@ contract LoyaltyProgramFactory is Ownable {
         LoyaltyToken newToken = new LoyaltyToken(
             _tokenName,
             _tokenSymbol,
-            _tokenDecimals,
+            _tokenDecimals, // Ensure this matches your LoyaltyToken constructor if it takes decimals
             _businessOwner // The business owner will be the owner of this new token contract
         );
 

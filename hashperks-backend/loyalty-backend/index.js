@@ -17,7 +17,7 @@ const membershipRoutes = require('./routes/membership');
 const transactionRoutes = require('./routes/transaction');
 const tokenRoutes = require('./routes/token');
 const dapatesting = require('./routes/dapatest')
-
+const perkRoutes = require('./routes/perk'); 
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -29,8 +29,9 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/token', tokenRoutes);
 app.use('/api/transaction', transactionRoutes);
 app.use('/api/stores', loyaltyRoutes);       
-app.use('/api/stores', membershipRoutes);
+// app.use('/api/stores', membershipRoutes);
 app.use('/api/stores-of-member', dapatesting);
+app.use('/api/perks', perkRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

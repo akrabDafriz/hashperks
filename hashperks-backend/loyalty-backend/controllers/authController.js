@@ -6,19 +6,41 @@ const bcrypt = require('bcryptjs');
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 exports.register = async (req, res) => {
-  const { name, email, password, role, wallet_address } = req.body;
+  const { username, email, password, role, wallet_address } = req.body; 
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: 'Username, email, and password are required.' });
+  }
+
   try {
     const hash = await bcrypt.hash(password, 10);
+
     const result = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, wallet_address)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id, email, role`,
-      [name, email, hash, role, wallet_address]
+      `INSERT INTO users (username, email, password_hash, role, wallet_address, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, username, email, role, wallet_address`, // Use 'username' column
+      [username, email, hash, role, wallet_address] // Pass the 'username' variable
     );
+
     res.status(201).json(result.rows[0]);
+
   } catch (err) {
+    console.error('Registration error details:', err);
+    console.error('Request body was:', req.body); 
+    
+    if (err.code === '23505') {
+        if (err.constraint === 'users_email_key') {
+            return res.status(409).json({ error: 'Registration failed', detail: 'Email already exists.' });
+        }
+        if (err.constraint === 'users_username_key') {
+            return res.status(409).json({ error: 'Registration failed', detail: 'Username already exists.' });
+        }
+        if (err.constraint === 'users_wallet_address_key') {
+            return res.status(409).json({ error: 'Registration failed', detail: 'Wallet address already registered.' });
+        }
+        return res.status(409).json({ error: 'Registration failed', detail: 'A unique value conflict occurred.' });
+    }
+    
     res.status(500).json({ error: 'Registration failed', detail: err.message });
-    console.log(req.body);
-    console.log(err.message);
   }
 };
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const authenticateToken = require('../middleware/authMiddleware');
+const {authenticateToken} = require('../middleware/authMiddleware');
 
 // Tanpa autentikasi
 router.post('/register', authController.register);

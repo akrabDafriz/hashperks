@@ -1,59 +1,92 @@
+// In hashperks-frontend/src/pages/Register.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useWallet } from "../context/WalletContext";
+import { useWallet } from "../context/WalletContext"; // Assuming this is the correct path
 
 const Register: React.FC = () => {
-  const [role, setRole] = useState<"member" | "store">("member");
-  const [storeName, setStoreName] = useState("");
-  const [name, setName] = useState("");
+  const [role, setRole] = useState<"user" | "store_owner">("user"); // Updated roles
+  const [storeNameInput, setStoreNameInput] = useState(""); // For the store name if role is store_owner
+  const [username, setUsername] = useState(""); // Changed from 'name' to 'username'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null); // For displaying errors
+  const [isLoading, setIsLoading] = useState(false);
 
+  const navigate = useNavigate();
   const { connectWallet, walletAddress } = useWallet();
+
+  const API_BASE_URL = 'http://localhost:3000/api'; // Or from your config
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
+    setIsLoading(true);
 
     if (!walletAddress) {
-      alert("Please connect your wallet to register.");
+      setError("Please connect your wallet to register.");
+      setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
+      setIsLoading(false);
       return;
     }
 
+    if (role === "store_owner" && !storeNameInput.trim()) {
+        setError("Store name is required when registering as a store owner.");
+        setIsLoading(false);
+        return;
+    }
+
     const payload = {
-      name,
+      username, // Changed from name
       email,
       wallet_address: walletAddress,
       password,
-      role: role === "store" ? "business_owner" : "customer",
+      role: role, // Directly use the state role ('user' or 'store_owner')
     };
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/register", {
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to register");
+      const responseData = await res.json();
 
-      const data = await res.json();
-      const userId = data.id;
-
-      if (role === "store") {
-        navigate(`/store/register`, { state: { userId, storeName } });
-      } else {
-        navigate("/member/dashboard");
+      if (!res.ok) {
+        throw new Error(responseData.message || "Failed to register. Please try again.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Registration failed. Please try again.");
+      
+      // Assuming registration is successful, backend returns user data including id
+      // and potentially an auth token if auto-login is implemented.
+      // For now, we'll just navigate. If auto-login, save token here.
+      console.log("Registration successful:", responseData);
+
+
+      if (role === "store_owner") {
+        // Navigate to StoreRegister, passing the storeName from the form
+        // and the newly created user's ID (responseData.user.id or responseData.id)
+        // Also, the user needs to log in to get an authToken for the next step.
+        // For simplicity, let's assume they need to log in separately.
+        alert("User registration successful! Please log in and then register your store details.");
+        navigate("/login"); 
+        // Or, if you want to pass data to StoreRegister directly after this:
+        // navigate(`/store-register`, { state: { initialStoreName: storeNameInput } });
+        // However, StoreRegister will need an authToken, so login is usually first.
+      } else { // role === "user"
+        alert("Registration successful! Please log in.");
+        navigate("/login"); // Redirect to login after successful user registration
+      }
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      setError(err.message || "Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,11 +96,11 @@ const Register: React.FC = () => {
         <h2 className="text-center mb-4">Register</h2>
 
         {!walletAddress ? (
-          <button className="btn btn-outline-dark mb-3" onClick={connectWallet}>
+          <button className="btn btn-outline-dark mb-3 w-100" onClick={connectWallet} type="button">
             Connect Wallet
           </button>
         ) : (
-          <p className="text-center fw-bold">
+          <p className="text-center fw-bold mb-3">
             Wallet: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
           </p>
         )}
@@ -78,38 +111,38 @@ const Register: React.FC = () => {
             <select
               className="form-select"
               value={role}
-              onChange={(e) => setRole(e.target.value as "member" | "store")}
+              onChange={(e) => setRole(e.target.value as "user" | "store_owner")}
               required
             >
-              <option value="member">Member</option>
-              <option value="store">Store</option>
+              <option value="user">User (Member)</option>
+              <option value="store_owner">Store Owner</option>
             </select>
           </div>
 
-          {role === "store" && (
+          {role === "store_owner" && (
             <div className="mb-3">
-              <label htmlFor="storeName" className="form-label">Store Name</label>
+              <label htmlFor="storeNameInput" className="form-label">Store Name</label>
               <input
                 type="text"
-                id="storeName"
+                id="storeNameInput"
                 className="form-control"
-                placeholder="Enter store name"
-                value={storeName}
-                onChange={(e) => setStoreName(e.target.value)}
-                required
+                placeholder="Enter your store's name"
+                value={storeNameInput}
+                onChange={(e) => setStoreNameInput(e.target.value)}
+                required={role === "store_owner"}
               />
             </div>
           )}
 
           <div className="mb-3">
-            <label htmlFor="name" className="form-label">Full Name</label>
+            <label htmlFor="username" className="form-label">Username</label> {/* Changed from Full Name */}
             <input
               type="text"
-              id="name"
+              id="username"
               className="form-control"
-              placeholder="Enter full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
@@ -153,15 +186,18 @@ const Register: React.FC = () => {
             />
           </div>
 
-          <button type="submit" className="btn btn-success w-100">
-            Register
+          {error && <p className="text-danger text-center mb-3">{error}</p>}
+
+          <button type="submit" className="btn btn-success w-100" disabled={isLoading}>
+            {isLoading ? "Registering..." : "Register"}
           </button>
         </form>
 
         <div className="text-center mt-3">
-          <p>Already have an account?</p>
+          <p className="mb-1">Already have an account?</p>
           <button
             className="btn btn-outline-secondary w-100"
+            type="button"
             onClick={() => navigate("/login")}
           >
             Back to Login
